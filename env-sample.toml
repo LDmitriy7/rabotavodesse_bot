@@ -1,0 +1,18 @@
+[Bot]
+token = ''
+#skip_updates = true
+
+[Database]
+name = 'rabotavodesse_bot'
+#username = 'root'
+#password = ''
+#host = 'localhost'
+#port = 27017
+#auth_source = 'admin'
+
+[Users]
+admins_ids = [724477101]
+
+[Log]
+#file = '.log'
+#level = 30
