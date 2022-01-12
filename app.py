@@ -6,15 +6,15 @@ from loader import dp
 
 
 async def on_startup(_):
-    # import filters
+    import filters
     import handlers
-    # import middlewares
-    # import tasks
+    import middlewares
+    import tasks
 
-    # filters.setup()
+    filters.setup()
     handlers.setup()
-    # middlewares.setup()
-    # tasks.setup()
+    middlewares.setup()
+    tasks.setup()
     await commands.setup()
 
 

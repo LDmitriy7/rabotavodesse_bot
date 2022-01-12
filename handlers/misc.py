@@ -106,7 +106,7 @@ async def start_handler(message: types.Message):
 async def add_handler(message: types.Message):
     chat = db['chat_' + str(abs(message.chat.id))]
 
-    file = open('quantity_invite.csv', 'r')
+    file = open('_quantity_invite.csv', 'r')
     n = 0
     for entry in file:
         uid, num = map(int, entry.split(','))
