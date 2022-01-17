@@ -16,6 +16,39 @@ from safecalls import *
 # chat = client['chat_' + str(abs(chat_id))]
 
 
+@dp.message_handler(commands=['start', 'list'])
+async def start_handler(message: types.Message):
+    if message.get_args() != 'techsupport':
+        data = []
+        for chat in (await db.list_collection_names(filter={"name": {"$regex": r"chat_\d?"}})):
+            user = await db[chat].find_one({'uid': message.from_user.id})
+            if user is not None:
+                chat = await db[chat].find_one({'chat_name': {'$exists': True}})
+                data.append(f'{chat["chat_name"]}: {user["count"]}/{config.INVITE_COUNT}')
+        if data:
+            await send_message(message.from_user.id, "Приглашено: \n" + "\n".join(data))
+        else:
+            await send_message(message.from_user.id, "Вы уже можете писать в чате или ещё в него не зашли")
+    else:
+        await send_message(message.from_user.id, 'Для разговора с техподдержкой напишите сообщение',
+                           reply_msg_id=message.message_id)
+
+
+# @dp.message_handler(commands='add', user_id=[364702722, 433120468])
+async def add_handler(message: types.Message):
+    chat = db['chat_' + str(abs(message.chat.id))]
+
+    file = open('_quantity_invite.csv', 'r')
+    n = 0
+    for entry in file:
+        uid, num = map(int, entry.split(','))
+        if num < 20:
+            await chat.replace_one({'uid': uid},
+                                   {'uid': uid, 'added': [], 'count': num}, upsert=True)
+            print(uid, num)
+            n += 1
+
+
 @dp.message_handler(content_types=ContentType.NEW_CHAT_MEMBERS)
 async def new_member_handler(message: types.Message):
     async with lock:
@@ -63,7 +96,7 @@ async def new_member_handler(message: types.Message):
 @dp.message_handler(content_types=[ContentType.TEXT, ContentType.PHOTO, ContentType.DOCUMENT])
 async def text_message_handler(msg: types.Message):
     if str(msg.chat.id) == config.TECH_SUPPORT_CHAT_ID:
-        if msg.reply_to_message is not None and bot.id == msg.reply_to_message.from_user.id:
+        if msg.reply_to_message and bot.id == msg.reply_to_message.from_user.id:
             if msg.reply_to_message.forward_from is not None:
                 if msg.reply_to_message.forward_from.id != config.Bot.id:
                     await send_message(msg.reply_to_message.forward_from.id, msg.text)
@@ -82,36 +115,3 @@ async def text_message_handler(msg: types.Message):
             if msg.chat.id in config.WHITELIST_CHATS:
                 return
             await restrict_write(msg.chat.id, msg.from_user.id, until_time=int(time()) + config.RESTRICT)
-
-
-@dp.message_handler(commands=['start', 'list'])
-async def start_handler(message: types.Message):
-    if message.get_args() != 'techsupport':
-        data = []
-        for chat in (await db.list_collection_names(filter={"name": {"$regex": r"chat_\d?"}})):
-            user = await db[chat].find_one({'uid': message.from_user.id})
-            if user is not None:
-                chat = await db[chat].find_one({'chat_name': {'$exists': True}})
-                data.append(f'{chat["chat_name"]}: {user["count"]}/{config.INVITE_COUNT}')
-        if data:
-            await send_message(message.from_user.id, "Приглашено: \n" + "\n".join(data))
-        else:
-            await send_message(message.from_user.id, "Вы уже можете писать в чате или ещё в него не зашли")
-    else:
-        await send_message(message.from_user.id, 'Для разговора с техподдержкой напишите сообщение',
-                           reply_msg_id=message.message_id)
-
-
-# @dp.message_handler(commands='add', user_id=[364702722, 433120468])
-async def add_handler(message: types.Message):
-    chat = db['chat_' + str(abs(message.chat.id))]
-
-    file = open('_quantity_invite.csv', 'r')
-    n = 0
-    for entry in file:
-        uid, num = map(int, entry.split(','))
-        if num < 20:
-            await chat.replace_one({'uid': uid},
-                                   {'uid': uid, 'added': [], 'count': num}, upsert=True)
-            print(uid, num)
-            n += 1

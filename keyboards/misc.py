@@ -1,5 +1,14 @@
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram_utils.keyboards import InlineKeyboardButton
+
+
+class Main(ReplyKeyboardMarkup):
+    TECH_SUPPORT = 'Написать в техподдержку'
+    CONTACTS_INFO = 'Сколько контактов осталось?'
+
+    def __init__(self):
+        super().__init__(resize_keyboard=True, row_width=1)
+        self.add(self.TECH_SUPPORT, self.CONTACTS_INFO)
 
 
 class ChannelUrl(InlineKeyboardMarkup):
