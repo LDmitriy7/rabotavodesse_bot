@@ -33,3 +33,13 @@ class Log:
 
     file = _data.get('file')
     level = _data.get('level')
+
+
+_misc = _env['Misc']
+
+TECH_SUPPORT_CHAT_ID = _misc['TECH_SUPPORT_CHAT_ID']
+MAIN_GROUP_ID = _misc['MAIN_GROUP_ID']
+RESTRICT_TIME = _misc['RESTRICT_TIME']
+USERS_TO_INVITE_COUNT = _misc['USERS_TO_INVITE_COUNT']
+
+WHITELIST_CHATS_IDS = [TECH_SUPPORT_CHAT_ID, MAIN_GROUP_ID]

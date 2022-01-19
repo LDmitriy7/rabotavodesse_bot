@@ -35,18 +35,18 @@ async def start_handler(message: types.Message):
 
 
 # @dp.message_handler(commands='add', user_id=[364702722, 433120468])
-async def add_handler(message: types.Message):
-    chat = db['chat_' + str(abs(message.chat.id))]
-
-    file = open('_quantity_invite.csv', 'r')
-    n = 0
-    for entry in file:
-        uid, num = map(int, entry.split(','))
-        if num < 20:
-            await chat.replace_one({'uid': uid},
-                                   {'uid': uid, 'added': [], 'count': num}, upsert=True)
-            print(uid, num)
-            n += 1
+# async def add_handler(message: types.Message):
+#     chat = db['chat_' + str(abs(message.chat.id))]
+#
+#     file = open('_quantity_invite.csv', 'r')
+#     n = 0
+#     for entry in file:
+#         uid, num = map(int, entry.split(','))
+#         if num < 20:
+#             await chat.replace_one({'uid': uid},
+#                                    {'uid': uid, 'added': [], 'count': num}, upsert=True)
+#             print(uid, num)
+#             n += 1
 
 
 @dp.message_handler(content_types=ContentType.NEW_CHAT_MEMBERS)
@@ -54,7 +54,7 @@ async def new_member_handler(message: types.Message):
     async with lock:
         if message.chat.id == config.TECH_SUPPORT_CHAT_ID:
             return
-        if message.chat.id in config.WHITELIST_CHATS:
+        if message.chat.id in config.WHITELIST_CHATS_IDS:
             return
         chat = db['chat_' + str(abs(message.chat.id))]
         user = await chat.find_one({'uid': message.from_user.id})
@@ -82,7 +82,7 @@ async def new_member_handler(message: types.Message):
                     await chat.find_one_and_update({'uid': user['uid']}, {'$inc': {'count': cnt},
                                                                           '$push': {'added': {'$each': to_add}}})
         chat_config = await chat.find_one({'last_msg': {'$exists': True}})
-        msg = await bot.send_photo(message.chat.id, config.SOME_PHOTO_URL, caption=texts.group_rules,
+        msg = await bot.send_photo(message.chat.id, config.GROUP_RULES_PHOTO_URL, caption=texts.group_rules,
                                    parse_mode=types.ParseMode.HTML, reply_markup=kb.ChannelUrl())
         logger.info('new msg: ' + str(msg.message_id))
         if chat_config is not None:
@@ -92,26 +92,25 @@ async def new_member_handler(message: types.Message):
         else:
             await chat.insert_one({'last_msg': msg.message_id, 'chat_name': message.chat.full_name})
 
-
-@dp.message_handler(content_types=[ContentType.TEXT, ContentType.PHOTO, ContentType.DOCUMENT])
-async def text_message_handler(msg: types.Message):
-    if str(msg.chat.id) == config.TECH_SUPPORT_CHAT_ID:
-        if msg.reply_to_message and bot.id == msg.reply_to_message.from_user.id:
-            if msg.reply_to_message.forward_from is not None:
-                if msg.reply_to_message.forward_from.id != config.Bot.id:
-                    await send_message(msg.reply_to_message.forward_from.id, msg.text)
-            else:
-                search = re.search(r'tg://user\?id=(?P<uid>\d+)', msg.reply_to_message.md_text)
-                if search:
-                    await send_message(int(search.group('uid')), msg.text)
-    elif msg.chat.type == ChatType.PRIVATE:
-        await bot.send_message(config.TECH_SUPPORT_CHAT_ID, f"[Сообщение от {msg.from_user.full_name}"
-                                                            f":]"
-                                                            f"(tg://user?id={msg.from_user.id})",
-                               parse_mode=types.ParseMode.MARKDOWN)
-        await msg.forward(config.TECH_SUPPORT_CHAT_ID)
-    elif msg.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
-        if msg.from_user.id not in config.WHITELIST:
-            if msg.chat.id in config.WHITELIST_CHATS:
-                return
-            await restrict_write(msg.chat.id, msg.from_user.id, until_time=int(time()) + config.RESTRICT)
+# @dp.message_handler(content_types=[ContentType.TEXT, ContentType.PHOTO, ContentType.DOCUMENT])
+# async def text_message_handler(msg: types.Message):
+# if str(msg.chat.id) == config.TECH_SUPPORT_CHAT_ID:
+#     if msg.reply_to_message and bot.id == msg.reply_to_message.from_user.id:
+#         if msg.reply_to_message.forward_from is not None:
+#             if msg.reply_to_message.forward_from.id != config.Bot.id:
+#                 await send_message(msg.reply_to_message.forward_from.id, msg.text)
+#         else:
+#             search = re.search(r'tg://user\?id=(?P<uid>\d+)', msg.reply_to_message.md_text)
+#             if search:
+#                 await send_message(int(search.group('uid')), msg.text)
+# elif msg.chat.type == ChatType.PRIVATE:
+#     await bot.send_message(config.TECH_SUPPORT_CHAT_ID, f"[Сообщение от {msg.from_user.full_name}"
+#                                                         f":]"
+#                                                         f"(tg://user?id={msg.from_user.id})",
+#                            parse_mode=types.ParseMode.MARKDOWN)
+#     await msg.forward(config.TECH_SUPPORT_CHAT_ID)
+# elif msg.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
+#     if msg.from_user.id not in config.WHITELIST:
+#         if msg.chat.id in config.WHITELIST_CHATS:
+#             return
+#         await restrict_write(msg.chat.id, msg.from_user.id, until_time=int(time()) + config.RESTRICT)
