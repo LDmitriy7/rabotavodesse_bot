@@ -1,6 +1,6 @@
-from loader import dp
 import aiogram_utils.filters
-from aiogram.dispatcher.filters.builtin import AdminFilter
+
+from loader import dp
 
 
 def setup():
