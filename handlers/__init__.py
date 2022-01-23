@@ -7,4 +7,4 @@ def setup():
     from . import contacts_info
 
     from . import tech_support
-    from . import restrict
+    from . import in_group

@@ -10,3 +10,7 @@ class Ticket(me.Document):
 class User(me.Document):
     id: int = me.IntField(primary_key=True)
     invited_users_ids: list[int] = me.ListField(me.IntField())
+
+
+class WelcomeMessage(me.Document):
+    message_id: int = me.IntField()

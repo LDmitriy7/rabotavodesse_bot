@@ -11,11 +11,7 @@ from models import documents
 
 @dp.message_handler(content_types=ContentType.NEW_CHAT_MEMBERS, chat_type=[ChatType.GROUP, ChatType.SUPERGROUP])
 async def on_new_chat_members(msg: types.Message):
-    await msg.answer_photo(
-        photo=config.GROUP_RULES_PHOTO_URL,
-        caption=texts.group_rules,
-        reply_markup=kb.ChannelUrl(),
-    )
+    await api.replace_welcome_message(msg.chat.id)
 
     user_inviter = documents.User.objects(id=msg.from_user.id).first() or documents.User(id=msg.from_user.id)
 
