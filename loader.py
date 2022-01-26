@@ -1,3 +1,5 @@
+import logging
+
 import mongoengine as me
 from aiogram import Bot, Dispatcher, types
 
@@ -14,3 +16,6 @@ me.connect(
     port=config.Database.port,
     authentication_source=config.Database.auth_source,
 )
+
+logging.basicConfig(filename=config.Log.file, level=config.Log.level)
+log = logging.getLogger()

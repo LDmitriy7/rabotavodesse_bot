@@ -1,14 +1,14 @@
 from aiogram import types
 from aiogram.types import ChatType
+from aiogram_utils.content_types import UserMessageContentTypes
 
 import config
 from loader import dp
 from models import documents
 
 
-@dp.message_handler(content_types='any', chat_type=ChatType.PRIVATE)
+@dp.message_handler(content_types=UserMessageContentTypes, chat_type=ChatType.PRIVATE)
 async def forward_ticket(msg: types.Message):
-    # await dp.bot.send_message(config.TECH_SUPPORT_CHAT_ID, f'Сообщение от {msg.from_user.get_mention()}:')
     forward = await msg.forward(config.TECH_SUPPORT_CHAT_ID)
     documents.Ticket(
         chat_id=forward.chat.id,
@@ -17,7 +17,7 @@ async def forward_ticket(msg: types.Message):
     ).save()
 
 
-@dp.message_handler(content_types='any', chat_id=config.TECH_SUPPORT_CHAT_ID, is_reply=True)
+@dp.message_handler(content_types=UserMessageContentTypes, chat_id=config.TECH_SUPPORT_CHAT_ID, is_reply=True)
 async def reply_on_ticket(msg: types.Message, reply: types.Message):
     if reply.from_user.id != dp.bot.id:
         return

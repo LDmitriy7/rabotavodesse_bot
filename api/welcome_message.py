@@ -1,11 +1,10 @@
-from contextlib import suppress
-
 from aiogram.utils.exceptions import TelegramAPIError
 
 import config
 import keyboards as kb
 import texts
 from loader import bot
+from loader import log
 from models import documents
 
 
@@ -20,8 +19,11 @@ async def replace_welcome_message(chat_id: int):
     welcome_msg = documents.WelcomeMessage.objects().first()
 
     if welcome_msg:
-        with suppress(TelegramAPIError):
+        try:
             await bot.delete_message(chat_id, welcome_msg.message_id)
+        except TelegramAPIError as e:
+            log.exception(e)
+
         welcome_msg.message_id = new_msg.message_id
     else:
         welcome_msg = documents.WelcomeMessage(message_id=new_msg.message_id)
