@@ -6,9 +6,10 @@ import texts
 from loader import bot
 from loader import log
 from models import documents
+from loader import lock
 
 
-async def replace_welcome_message(chat_id: int):
+async def _replace_welcome_message(chat_id: int):
     new_msg = await bot.send_photo(
         chat_id=chat_id,
         photo=config.GROUP_RULES_PHOTO_URL,
@@ -29,3 +30,8 @@ async def replace_welcome_message(chat_id: int):
         welcome_msg = documents.WelcomeMessage(message_id=new_msg.message_id)
 
     welcome_msg.save()
+
+
+async def replace_welcome_message(chat_id: int):
+    async with lock:
+        await _replace_welcome_message(chat_id)

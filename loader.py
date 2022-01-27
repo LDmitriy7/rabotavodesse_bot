@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import mongoengine as me
@@ -19,3 +20,5 @@ me.connect(
 
 logging.basicConfig(filename=config.Log.file, level=config.Log.level)
 log = logging.getLogger()
+
+lock = asyncio.Lock()
