@@ -12,7 +12,7 @@ class Main(ReplyKeyboardMarkup):
 
 
 class ChannelUrl(InlineKeyboardMarkup):
-    URL = InlineKeyboardButton(text='«HoReCa | Job in Odessa»', url='https://t.me/+5sXbtxiiMiU2NzQy')
+    URL = InlineKeyboardButton(text='«HoReCa | Job in Odessa»', url='https://t.me/+bBcth0lzD3phZTky')
 
     def __init__(self):
         super().__init__()
